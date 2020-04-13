@@ -3,8 +3,11 @@ package com.source.kotfirebase.abs.firestore
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.source.kotfirebase.data.CollectionResult
+import com.source.kotfirebase.data.CollectionWrite
 import com.source.kotfirebase.data.DocumentResult
+import com.source.kotfirebase.data.DocumentWrite
 
 object Firestore : FirestoreServices {
 
@@ -54,6 +57,7 @@ object Firestore : FirestoreServices {
         return documentLiveData
     }
 
+
     /**
      * Perform the network using the firebase existing API to fetch result
      * from the collection and return the result as a live data.
@@ -102,7 +106,51 @@ object Firestore : FirestoreServices {
         return collectionLiveData
     }
 
-    inline fun <reified T> getDocumentResultsIn(document: String, sync: Boolean = false): LiveData<T> {
+    override fun addToCollection(collection: String, any: Any): LiveData<CollectionWrite> {
+        val mutableLiveData = MutableLiveData<CollectionWrite>()
+
+        performNetworkCall {
+            collection(collection)
+                .add(any)
+                .addOnSuccessListener {
+                    mutableLiveData.postValue(CollectionWrite(it))
+                }.addOnFailureListener {
+                    mutableLiveData.postValue(CollectionWrite(exception = it))
+                }
+        }
+
+        return mutableLiveData
+    }
+
+    override fun addToDocument(
+        document: String,
+        any: Any,
+        setOptions: SetOptions?
+    ): LiveData<DocumentWrite> {
+
+        val mutableLiveData = MutableLiveData<DocumentWrite>()
+
+        performNetworkCall {
+            if (setOptions == null) {
+                document(document)
+                    .set(any)
+            } else {
+                document(document)
+                    .set(any, setOptions)
+            }.addOnSuccessListener {
+                mutableLiveData.postValue(DocumentWrite(true))
+            }.addOnFailureListener {
+                mutableLiveData.postValue(DocumentWrite(exception = it))
+            }
+        }
+
+        return mutableLiveData
+    }
+
+    inline fun <reified T> getDocumentResultsIn(
+        document: String,
+        sync: Boolean = false
+    ): LiveData<T> {
         val mutableLiveData = MutableLiveData<T>()
 
         performNetworkCall {

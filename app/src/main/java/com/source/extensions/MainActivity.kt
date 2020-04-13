@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import com.source.kotfirebase.abs.firestore.Firestore
 import com.source.kotfirebase.abs.storage.Storage
+import com.source.kotfirebase.data.CollectionWrite
 import com.source.kotfirebase.data.DocumentResult
+import com.source.kotfirebase.data.DocumentWrite
 import com.source.kotfirebase.data.StorageResult
 import com.source.kotfirebase.getFirebaseDocuments
 import com.source.kotfirebase.getFirebaseDocumentsIn
@@ -69,11 +71,20 @@ class MainActivity : AppCompatActivity() {
         //Get the document data to the model class
         val modelFormedLiveData: LiveData<Any> =
             Firestore.getDocumentResultsIn<Any>("collectionId/documentId")
-
+        //or
         //Get the document data to the model class in realtime
         val modelFormedRealtimeLiveData: LiveData<Any> =
             Firestore.getDocumentResultsIn<Any>("collectionId/documentId", true)
-        //or
+
+        //Write data to collection
+        val addToCollection: LiveData<CollectionWrite> =
+            Firestore.addToCollection("collectionId", mapOf("one" to 1, "two" to 2))
+
+        //Write data to document
+        val addToDocument: LiveData<DocumentWrite> =
+            Firestore.addToDocument("collectionId/documentId",
+                mapOf("one" to 1, "two" to 2))
+
         //Using kotlin extension on string for single time result
         val documentsKtxLiveData: LiveData<DocumentResult> =
             "collectionId/documentId".getFirebaseDocuments()
