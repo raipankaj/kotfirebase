@@ -3,16 +3,10 @@ package com.source.extensions
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
+import com.source.kotfirebase.*
 import com.source.kotfirebase.abs.firestore.Firestore
 import com.source.kotfirebase.abs.storage.Storage
-import com.source.kotfirebase.data.CollectionWrite
-import com.source.kotfirebase.data.DocumentResult
-import com.source.kotfirebase.data.DocumentWrite
-import com.source.kotfirebase.data.StorageResult
-import com.source.kotfirebase.getFirebaseDocuments
-import com.source.kotfirebase.getFirebaseDocumentsIn
-import com.source.kotfirebase.logBundledEvent
-import com.source.kotfirebase.logEvent
+import com.source.kotfirebase.data.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -67,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         //Get realtime result
         val documentsRealtimeLiveData: LiveData<DocumentResult> =
             Firestore.getFromDocument("collectionId/documentId", true)
-        //or
+
         //Get the document data to the model class
         val modelFormedLiveData: LiveData<Any> =
             Firestore.getDocumentResultsIn<Any>("collectionId/documentId")
@@ -76,14 +70,25 @@ class MainActivity : AppCompatActivity() {
         val modelFormedRealtimeLiveData: LiveData<Any> =
             Firestore.getDocumentResultsIn<Any>("collectionId/documentId", true)
 
+        
+        //Get the documents in collection
+        val collectionLiveData: LiveData<CollectionResult> =
+            Firestore.getFromCollection("collectionId")
+        //or
+        //Get the collection with realtime listener attached to it
+        val collectionRealtimeLiveData: LiveData<CollectionResult> =
+            Firestore.getFromCollection("collectionId", true)
+
         //Write data to collection
         val addToCollection: LiveData<CollectionWrite> =
             Firestore.addToCollection("collectionId", mapOf("one" to 1, "two" to 2))
 
         //Write data to document
         val addToDocument: LiveData<DocumentWrite> =
-            Firestore.addToDocument("collectionId/documentId",
-                mapOf("one" to 1, "two" to 2))
+            Firestore.addToDocument(
+                "collectionId/documentId",
+                mapOf("one" to 1, "two" to 2)
+            )
 
         //Using kotlin extension on string for single time result
         val documentsKtxLiveData: LiveData<DocumentResult> =
@@ -100,5 +105,13 @@ class MainActivity : AppCompatActivity() {
         //Get the document data to the model class in realtime
         val modelFormedKtxRealtimeLiveData: LiveData<Any> =
             "collectionId/documentId".getFirebaseDocumentsIn<Any>(true)
+
+        //Get documents in the collection using ktx
+        val collectionKtxLiveData: LiveData<CollectionResult> =
+            "collectionId".getFirebaseCollection()
+        //or
+        //Listen for the realtime update
+        val collectionRealtimeKtxLiveData: LiveData<CollectionResult> =
+            "collectionId".getFirebaseCollection(true)
     }
 }
