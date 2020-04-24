@@ -3,6 +3,24 @@ A wrapper over existing firebase APIs to reduce the developer effort in using th
 
 The objective of this library is to bring down APIs to a single line of code by using the kotlin features, under the hood everything remains same it's just a matter of fact that developer need not have to worry about them.
 
+Following are the steps to add kotfirebase to your android project
+1. Add it in your root build.gradle at the end of repositories
+```groovy
+        allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+```
+2. Add the dependency
+```groovy
+        dependencies {
+	        implementation 'com.github.raipankaj:kotfirebase:0.0.1'
+	}
+```
+
+
 <h3>Cloud Firestore</h3>
 Here are the ways to use cloud firestore APIs
 
