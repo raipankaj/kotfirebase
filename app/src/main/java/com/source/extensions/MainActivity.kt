@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import com.source.kotfirebase.*
 import com.source.kotfirebase.abs.firestore.Firestore
+import com.source.kotfirebase.abs.remoteconfig.RemoteConfig
 import com.source.kotfirebase.abs.storage.Storage
 import com.source.kotfirebase.data.*
 
@@ -22,6 +23,9 @@ class MainActivity : AppCompatActivity() {
 
         /*Firebase Analytics*/
         firebaseAnalytics()
+
+        /*Remote config*/
+        remoteConfig()
     }
 
     private fun firebaseAnalytics() {
@@ -51,6 +55,26 @@ class MainActivity : AppCompatActivity() {
         //Ktx version of uploading bitmap is
         val uploadBitmapKtxLiveData: LiveData<StorageResult> =
             bitmap.uploadToCloudStorageAt("storagePath")
+    }
+
+    private fun remoteConfig() {
+        //Initiate the remote config to provide the default value and to change other params
+        RemoteConfig.initRemoteConfig(R.xml.remote_config_defaults)
+
+        //Fetch and activate to show the update the result in realtime
+        val isFetchedLiveData: LiveData<RemoteConfigResult> = RemoteConfig.fetchAndShow()
+
+        //Just fetch but do not update the values
+        RemoteConfig.justFetch()
+
+        //Activate the fetched result so as to get updated values
+        val isFetchedResultActivated: LiveData<RemoteConfigResult> = RemoteConfig.activateFetchedResults()
+
+        //Get the value from the remote config using these predefined methods
+        RemoteConfig.getRemoteBoolean("is_update_available")
+        RemoteConfig.getRemoteDouble("current_version")
+        RemoteConfig.getRemoteLong("last_updated_timestamp")
+        RemoteConfig.getRemoteString("app_theme_name")
     }
 
     private fun cloudFirestore() {

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMap>
+
+    <entry>
+        <key>app_theme</key>
+        <value>Orange</value>
+    </entry>
+
+    <entry>
+        <key>default_text_size</key>
+        <value>36</value>
+    </entry>
+
+</defaultsMap>
