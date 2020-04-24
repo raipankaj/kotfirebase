@@ -3,6 +3,7 @@ package com.source.kotfirebase.abs.firestore
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.SetOptions
 import com.source.kotfirebase.data.CollectionResult
 import com.source.kotfirebase.data.CollectionWrite
@@ -10,6 +11,8 @@ import com.source.kotfirebase.data.DocumentResult
 import com.source.kotfirebase.data.DocumentWrite
 
 object Firestore : FirestoreServices {
+
+    val firestore = FirebaseFirestore.getInstance()
 
     /**
      * Perform the network using the firebase existing API to fetch result
@@ -174,12 +177,36 @@ object Firestore : FirestoreServices {
     }
 
     /**
+     * Update the firestore settings based before using cloud firestore
+     * where isPersistenceEnabled and isSLLEnabled is set to true by default.
+     */
+    fun updateFirestoreSettings(
+        host: String? = null,
+        cacheSizeInBytes: Long? = null,
+        isPersistenceEnabled: Boolean = true,
+        isSLLEnabled: Boolean = true
+    ) {
+        val builder = FirebaseFirestoreSettings.Builder()
+
+        host?.let {
+            builder.setHost(it)
+        }
+
+        cacheSizeInBytes?.let {
+            builder.setCacheSizeBytes(it)
+        }
+
+        builder.setPersistenceEnabled(isPersistenceEnabled)
+        builder.setSslEnabled(isSLLEnabled)
+    }
+
+
+    /**
      * A utility method to perform firestore APIs call without need to write
      * getInstance() over and over with an added advantage of perform certain
      * activity based on if-else condition.
      */
     inline fun performNetworkCall(firebaseFunc: FirebaseFirestore.() -> Unit) {
-        val firestore = FirebaseFirestore.getInstance()
         firebaseFunc(firestore)
     }
 }
