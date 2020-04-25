@@ -52,10 +52,7 @@ class MainActivity : AppCompatActivity() {
         //Upload bitmap by providing cloud storage path and bitmap
         val uploadBitmapLiveData: LiveData<StorageResult> =
             Storage.uploadBitmap("myimage.jpg","storagePath", bitmap)
-        //or
-        //Ktx version of uploading bitmap is
-        val uploadBitmapKtxLiveData: LiveData<StorageResult> =
-            bitmap.uploadToCloudStorageAt("storagePath")
+
     }
 
     private fun remoteConfig() {

@@ -109,6 +109,7 @@ object Firestore : FirestoreServices {
         return collectionLiveData
     }
 
+
     override fun addToCollection(collection: String, any: Any): LiveData<CollectionWrite> {
         val mutableLiveData = MutableLiveData<CollectionWrite>()
 
@@ -125,6 +126,10 @@ object Firestore : FirestoreServices {
         return mutableLiveData
     }
 
+    /**
+     * Add the document based on the document id, SetOption is by default set to
+     * null, that means new values are written in the document every time.
+     */
     override fun addToDocument(
         document: String,
         any: Any,
@@ -150,6 +155,10 @@ object Firestore : FirestoreServices {
         return mutableLiveData
     }
 
+    /**
+     * Get the document from the collection based on pre-defined model.
+     * Pass the data class type while calling getDocumentResultsIn()
+     */
     inline fun <reified T> getDocumentResultsIn(
         document: String,
         sync: Boolean = false

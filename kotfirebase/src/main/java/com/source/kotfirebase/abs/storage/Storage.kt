@@ -15,13 +15,62 @@ import java.io.InputStream
 
 object Storage : StorageServices {
 
+    /**
+     * Upload bitmap by providing the name of the file and storage bucket.
+     * In case of storage bucket is empty than it will store image directly in
+     * the root bucket.
+     */
     override fun uploadBitmap(fileName: String, storagePath: String, bitmap: Bitmap): LiveData<StorageResult> {
 
         val storageMutableLiveData = MutableLiveData<StorageResult>()
 
         performNetworkCall {
 
-            reference.child(storagePath.plus(fileName)).putBytes(bitmap.getBytes())
+            reference.child(storagePath.plus("/").plus(fileName)).putBytes(bitmap.getBytes())
+                .addOnSuccessListener {
+                    formData(it, storageMutableLiveData)
+                }.addOnFailureListener {
+                    storageMutableLiveData.postValue(StorageResult(exception = it))
+                }
+        }
+
+        return storageMutableLiveData
+    }
+
+    /**
+     * Upload filestream by providing the name of the file and storage bucket.
+     * In case of storage bucket is empty than it will store image directly in
+     * the root bucket.
+     */
+    override fun uploadFileStream(fileName: String, storagePath: String, filePath: String): LiveData<StorageResult> {
+
+        val stream: InputStream = FileInputStream(File(filePath))
+        val storageMutableLiveData = MutableLiveData<StorageResult>()
+
+        performNetworkCall {
+            reference.child(storagePath.plus("/").plus(fileName)).putStream(stream)
+                .addOnSuccessListener {
+                    formData(it, storageMutableLiveData)
+                }.addOnFailureListener {
+                    storageMutableLiveData.postValue(StorageResult(exception = it))
+                }
+        }
+
+        return storageMutableLiveData
+    }
+
+    /**
+     * Upload file by providing the name of the file and storage bucket.
+     * In case of storage bucket is empty than it will store image directly in
+     * the root bucket.
+     */
+    override fun uploadFile(fileName: String, storagePath: String, filePath: String): LiveData<StorageResult> {
+
+        val file: Uri = Uri.fromFile(File(filePath))
+        val storageMutableLiveData = MutableLiveData<StorageResult>()
+
+        performNetworkCall {
+            reference.child(storagePath.plus("/").plus(fileName)).putFile(file)
                 .addOnSuccessListener {
                     formData(it, storageMutableLiveData)
                 }.addOnFailureListener {
@@ -43,40 +92,6 @@ object Storage : StorageServices {
             it.uploadSessionUri
         )
         storageMutableLiveData.postValue(StorageResult(upload))
-    }
-
-    override fun uploadFileStream(fileName: String, storagePath: String, filePath: String): LiveData<StorageResult> {
-
-        val stream: InputStream = FileInputStream(File(filePath))
-        val storageMutableLiveData = MutableLiveData<StorageResult>()
-
-        performNetworkCall {
-            reference.child(storagePath.plus(fileName)).putStream(stream)
-                .addOnSuccessListener {
-                    formData(it, storageMutableLiveData)
-                }.addOnFailureListener {
-                    storageMutableLiveData.postValue(StorageResult(exception = it))
-                }
-        }
-
-        return storageMutableLiveData
-    }
-
-    override fun uploadFile(fileName: String, storagePath: String, filePath: String): LiveData<StorageResult> {
-
-        val file: Uri = Uri.fromFile(File(filePath))
-        val storageMutableLiveData = MutableLiveData<StorageResult>()
-
-        performNetworkCall {
-            reference.child(storagePath.plus(fileName)).putFile(file)
-                .addOnSuccessListener {
-                    formData(it, storageMutableLiveData)
-                }.addOnFailureListener {
-                    storageMutableLiveData.postValue(StorageResult(exception = it))
-                }
-        }
-
-        return storageMutableLiveData
     }
 
     private fun Bitmap.getBytes(): ByteArray {
