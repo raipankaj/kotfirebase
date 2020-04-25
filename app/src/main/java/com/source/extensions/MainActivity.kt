@@ -3,6 +3,7 @@ package com.source.extensions
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.observe
 import com.source.kotfirebase.*
 import com.source.kotfirebase.abs.firestore.Firestore
 import com.source.kotfirebase.abs.remoteconfig.RemoteConfig
@@ -94,7 +95,10 @@ class MainActivity : AppCompatActivity() {
         val modelFormedRealtimeLiveData: LiveData<Any> =
             Firestore.getDocumentResultsIn<Any>("collectionId/documentId", true)
 
-        
+        Firestore.addToCollection("sa","ss").observe(this) {
+            it.documentReference
+        }
+
         //Get the documents in collection
         val collectionLiveData: LiveData<CollectionResult> =
             Firestore.getFromCollection("collectionId")
