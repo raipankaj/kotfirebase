@@ -14,9 +14,6 @@ fun String.getFirebaseDocuments(sync: Boolean = false) = Firestore.getFromDocume
 inline fun <reified T> String.getFirebaseDocumentsIn(sync: Boolean = false) =
     Firestore.getDocumentResultsIn<T>(this, sync)
 
-infix fun Bitmap.uploadToCloudStorageAt(storagePath: String) =
-    Storage.uploadBitmap(storagePath, this)
-
 fun Context.logBundledEvent(name: String, analyticsFunc: Bundle.() -> Unit) {
     val bundle = Bundle()
     analyticsFunc(bundle)

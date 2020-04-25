@@ -43,15 +43,15 @@ class MainActivity : AppCompatActivity() {
     private fun cloudStorage() {
         //Upload file by providing cloud storage path and file path
         val uploadFileLiveData: LiveData<StorageResult> =
-            Storage.uploadFile("storagePath", "filePath")
+            Storage.uploadFile("myimage.jpg","storagePath", "filePath")
 
         //Upload file stream by providing cloud storage path and file path
         val uploadFileStreamLiveData: LiveData<StorageResult> =
-            Storage.uploadFileStream("storagePath", "filePath")
+            Storage.uploadFileStream("myimage.jpg","storagePath", "filePath")
 
         //Upload bitmap by providing cloud storage path and bitmap
         val uploadBitmapLiveData: LiveData<StorageResult> =
-            Storage.uploadBitmap("storagePath", bitmap)
+            Storage.uploadBitmap("myimage.jpg","storagePath", bitmap)
         //or
         //Ktx version of uploading bitmap is
         val uploadBitmapKtxLiveData: LiveData<StorageResult> =
