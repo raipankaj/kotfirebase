@@ -15,13 +15,13 @@ import java.io.InputStream
 
 object Storage : StorageServices {
 
-    override fun uploadBitmap(storagePath: String, bitmap: Bitmap): LiveData<StorageResult> {
+    override fun uploadBitmap(fileName: String, storagePath: String, bitmap: Bitmap): LiveData<StorageResult> {
 
         val storageMutableLiveData = MutableLiveData<StorageResult>()
 
         performNetworkCall {
 
-            reference.child(storagePath).putBytes(bitmap.getBytes())
+            reference.child(storagePath.plus(fileName)).putBytes(bitmap.getBytes())
                 .addOnSuccessListener {
                     formData(it, storageMutableLiveData)
                 }.addOnFailureListener {
@@ -45,13 +45,13 @@ object Storage : StorageServices {
         storageMutableLiveData.postValue(StorageResult(upload))
     }
 
-    override fun uploadFileStream(storagePath: String, filePath: String): LiveData<StorageResult> {
+    override fun uploadFileStream(fileName: String, storagePath: String, filePath: String): LiveData<StorageResult> {
 
         val stream: InputStream = FileInputStream(File(filePath))
         val storageMutableLiveData = MutableLiveData<StorageResult>()
 
         performNetworkCall {
-            reference.child(storagePath).putStream(stream)
+            reference.child(storagePath.plus(fileName)).putStream(stream)
                 .addOnSuccessListener {
                     formData(it, storageMutableLiveData)
                 }.addOnFailureListener {
@@ -62,13 +62,13 @@ object Storage : StorageServices {
         return storageMutableLiveData
     }
 
-    override fun uploadFile(storagePath: String, filePath: String): LiveData<StorageResult> {
+    override fun uploadFile(fileName: String, storagePath: String, filePath: String): LiveData<StorageResult> {
 
         val file: Uri = Uri.fromFile(File(filePath))
         val storageMutableLiveData = MutableLiveData<StorageResult>()
 
         performNetworkCall {
-            reference.child(storagePath).putFile(file)
+            reference.child(storagePath.plus(fileName)).putFile(file)
                 .addOnSuccessListener {
                     formData(it, storageMutableLiveData)
                 }.addOnFailureListener {
