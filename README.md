@@ -16,7 +16,7 @@ Following are the steps to add kotfirebase to your android project
 2. Add the dependency
 ```groovy
         dependencies {
-	        implementation 'com.github.raipankaj:kotfirebase:0.0.1'
+	        implementation 'com.github.raipankaj:kotfirebase:0.1.0'
 	}
 ```
 
@@ -90,15 +90,15 @@ Here are the ways to use cloud firestore APIs
 Here are the ways to use cloud storage APIs
 
 ```kotlin
-	//Upload file by providing cloud storage path and file path
+	//Upload file by providing file name, storage path and file path
         val uploadFileLiveData: LiveData<StorageResult> =
             Storage.uploadFile("myimage.jpg","storagePath", "filePath")
 
-        //Upload file stream by providing cloud storage path and file path
+        //Upload file stream by providing file name, storage path and file path
         val uploadFileStreamLiveData: LiveData<StorageResult> =
             Storage.uploadFileStream("myimage.jpg","storagePath", "filePath")
 
-        //Upload bitmap by providing cloud storage path and bitmap
+        //Upload bitmap by providing file name, storage path and bitmap
         val uploadBitmapLiveData: LiveData<StorageResult> =
             Storage.uploadBitmap("myimage.jpg","storagePath", bitmap)
 
@@ -126,16 +126,16 @@ Update app behaviour without updating app on playstore using the remote config
         //Initiate the remote config to provide the default value and to change other params
         RemoteConfig.initRemoteConfig(R.xml.remote_config_defaults)
 
-        //Fetch and activate to show the update the result in realtime
+        //Fetch and activate to update the remote config values in realtime
         val isFetchedLiveData: LiveData<RemoteConfigResult> = RemoteConfig.fetchAndShow()
 
-        //Just fetch but do not update the values
+        //Just fetch but do not update the remote config values
         RemoteConfig.justFetch()
 
-        //Activate the fetched result so as to get updated values
+        //Activate the fetched result so as to get latest remote config values
         val isFetchedResultActivated: LiveData<RemoteConfigResult> = RemoteConfig.activateFetchedResults()
 
-        //Get the value from the remote config using these predefined methods
+        //Get the value from remote config using these predefined methods
         RemoteConfig.getRemoteBoolean("is_update_available")
         RemoteConfig.getRemoteDouble("current_version")
         RemoteConfig.getRemoteLong("last_updated_timestamp")
