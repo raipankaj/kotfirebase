@@ -4,9 +4,11 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.api.Billing
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.UploadTask
 import com.source.kotfirebase.data.OnUploadSuccess
+import com.source.kotfirebase.data.StorageDownloadResult
 import com.source.kotfirebase.data.StorageResult
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -79,6 +81,27 @@ object Storage : StorageServices {
         }
 
         return storageMutableLiveData
+    }
+
+    override fun downloadFile(
+        fileName: String,
+        storagePath: String,
+        destinationFile: File
+    ): LiveData<StorageDownloadResult> {
+
+        val mutableLiveData = MutableLiveData<StorageDownloadResult>()
+
+        performNetworkCall {
+            reference.child(storagePath.plus("/").plus(fileName))
+                .getFile(destinationFile)
+                .addOnSuccessListener {
+                    mutableLiveData.postValue(StorageDownloadResult(it))
+                }.addOnFailureListener {
+                    mutableLiveData.postValue(StorageDownloadResult(exception = it))
+                }
+        }
+
+        return mutableLiveData
     }
 
     private fun formData(
