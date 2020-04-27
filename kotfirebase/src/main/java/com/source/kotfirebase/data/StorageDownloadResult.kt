@@ -1,10 +1,15 @@
 package com.source.kotfirebase.data
 
 import androidx.annotation.Keep
-import com.google.firebase.storage.FileDownloadTask
 
 @Keep
 data class StorageDownloadResult(
-    var taskSnapshot: FileDownloadTask.TaskSnapshot? = null,
+    var taskSnapshot: OnDownloadSuccess? = null,
     var exception: Exception? = null
+)
+
+@Keep
+data class OnDownloadSuccess(
+    val byteTransferred: Long,
+    val totalByteCount: Long
 )

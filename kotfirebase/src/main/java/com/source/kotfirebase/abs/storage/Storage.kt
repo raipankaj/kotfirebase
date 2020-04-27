@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.google.api.Billing
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.UploadTask
+import com.source.kotfirebase.data.OnDownloadSuccess
 import com.source.kotfirebase.data.OnUploadSuccess
 import com.source.kotfirebase.data.StorageDownloadResult
 import com.source.kotfirebase.data.StorageResult
@@ -95,7 +96,7 @@ object Storage : StorageServices {
             reference.child(storagePath.plus("/").plus(fileName))
                 .getFile(destinationFile)
                 .addOnSuccessListener {
-                    mutableLiveData.postValue(StorageDownloadResult(it))
+                    mutableLiveData.postValue(StorageDownloadResult(OnDownloadSuccess(it.bytesTransferred, it.totalByteCount)))
                 }.addOnFailureListener {
                     mutableLiveData.postValue(StorageDownloadResult(exception = it))
                 }
