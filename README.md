@@ -16,7 +16,7 @@ Following are the steps to add kotfirebase to your android project
 2. Add the dependency
 ```groovy
         dependencies {
-	        implementation 'com.github.raipankaj:kotfirebase:0.1.0'
+	        implementation 'com.github.raipankaj:kotfirebase:0.1.1beta'
 	}
 ```
 
