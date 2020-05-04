@@ -16,7 +16,7 @@ allprojects {
 2. Add the dependency
 ```groovy
 dependencies {
-	implementation 'com.github.raipankaj:kotfirebase:0.1.1beta'
+	implementation 'com.github.raipankaj:kotfirebase:0.1.2-beta'
 }
 ```
 
