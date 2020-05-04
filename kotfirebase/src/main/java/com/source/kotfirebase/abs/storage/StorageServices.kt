@@ -12,4 +12,6 @@ interface StorageServices {
     fun uploadFile(fileName: String, storagePath: String = "", filePath: String): LiveData<StorageResult>
 
     fun downloadFile(fileName: String, storagePath: String = "", destinationFile: File): LiveData<StorageDownloadResult>
+    fun downloadInMemory(fileName: String, storagePath: String = "", maxDownloadByteSize: Long): LiveData<StorageDownloadResult>
+    fun getDownloadUrl(fileName: String, storagePath: String = ""): LiveData<StorageDownloadResult>
 }

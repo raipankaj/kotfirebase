@@ -105,6 +105,41 @@ object Storage : StorageServices {
         return mutableLiveData
     }
 
+    override fun downloadInMemory(
+        fileName: String,
+        storagePath: String,
+        maxDownloadByteSize: Long
+    ): LiveData<StorageDownloadResult> {
+        val mutableLiveData = MutableLiveData<StorageDownloadResult>()
+
+        performNetworkCall {
+            reference.child(storagePath.plus("/").plus(fileName))
+                .getBytes(maxDownloadByteSize)
+                .addOnSuccessListener {
+                    mutableLiveData.postValue(StorageDownloadResult(byteArray = it))
+                }.addOnFailureListener {
+                    mutableLiveData.postValue(StorageDownloadResult(exception = it))
+                }
+        }
+
+        return mutableLiveData
+    }
+
+    override fun getDownloadUrl(fileName: String, storagePath: String): LiveData<StorageDownloadResult> {
+        val mutableLiveData = MutableLiveData<StorageDownloadResult>()
+
+        performNetworkCall {
+            reference.child(storagePath.plus("/").plus(fileName)).downloadUrl
+                .addOnSuccessListener {
+                    mutableLiveData.postValue(StorageDownloadResult(downloadUrl = it))
+                }.addOnFailureListener {
+                    mutableLiveData.postValue(StorageDownloadResult(exception = it))
+                }
+        }
+
+        return mutableLiveData
+    }
+
     private fun formData(
         it: UploadTask.TaskSnapshot,
         storageMutableLiveData: MutableLiveData<StorageResult>

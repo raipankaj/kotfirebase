@@ -53,6 +53,15 @@ class MainActivity : AppCompatActivity() {
         val uploadBitmapLiveData: LiveData<StorageResult> =
             Storage.uploadBitmap("myimage.jpg","storagePath", bitmap)
 
+        val getDownloadUrlLiveData: LiveData<StorageDownloadResult> =
+            Storage.getDownloadUrl("myimage.jpg", "storagePath")
+
+        val downloadFileLiveData: LiveData<StorageDownloadResult> =
+            Storage.downloadFile("myimage.jpg", "storagePath", file)
+
+        val ONE_MEGABYTE: Long = 1024 * 1024
+        val downloadTempStorageLiveData: LiveData<StorageDownloadResult> =
+            Storage.downloadInMemory("myimage.jpg", "storagePath", ONE_MEGABYTE)
     }
 
     private fun remoteConfig() {
