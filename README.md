@@ -6,18 +6,18 @@ The objective of this library is to bring down APIs to a single line of code by 
 Following are the steps to add kotfirebase to your android project
 1. Add it in your root build.gradle at the end of repositories
 ```groovy
-        allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
+allprojects {
+	repositories {
+		...
+		maven { url 'https://jitpack.io' }
 	}
+}
 ```
 2. Add the dependency
 ```groovy
-        dependencies {
-	        implementation 'com.github.raipankaj:kotfirebase:0.1.1beta'
-	}
+dependencies {
+	implementation 'com.github.raipankaj:kotfirebase:0.1.1beta'
+}
 ```
 
 
@@ -25,64 +25,49 @@ Following are the steps to add kotfirebase to your android project
 Here are the ways to use cloud firestore APIs
 
 ```kotlin
-        //Get single time result
-        val documentsLiveData: LiveData<DocumentResult> =
-            Firestore.getFromDocument("collectionId/documentId")
+//Get single time result
+val documentsLiveData: LiveData<DocumentResult> =
+Firestore.getFromDocument("collectionId/documentId")
         //or
-        //Get realtime result
-        val documentsRealtimeLiveData: LiveData<DocumentResult> =
-            Firestore.getFromDocument("collectionId/documentId", true)
+//Get realtime result
+val documentsRealtimeLiveData: LiveData<DocumentResult> =
+Firestore.getFromDocument("collectionId/documentId", true)
 
-        //Get the document data to the model class
-        val modelFormedLiveData: LiveData<Any> =
-            Firestore.getDocumentResultsIn<Any>("collectionId/documentId")
+//Get the document data to the model class
+val modelFormedLiveData: LiveData<Any> = Firestore.getDocumentResultsIn<Any>("collectionId/documentId")
         //or
-        //Get the document data to the model class in realtime
-        val modelFormedRealtimeLiveData: LiveData<Any> =
-            Firestore.getDocumentResultsIn<Any>("collectionId/documentId", true)
+//Get the document data to the model class in realtime
+val modelFormedRealtimeLiveData: LiveData<Any> = Firestore.getDocumentResultsIn<Any>("collectionId/documentId", true)
 
-        //Get the documents in collection
-        val collectionLiveData: LiveData<CollectionResult> =
-            Firestore.getFromCollection("collectionId")
+//Get the documents in collection
+val collectionLiveData: LiveData<CollectionResult> = Firestore.getFromCollection("collectionId")
         //or
-        //Get the collection with realtime listener attached to it
-        val collectionRealtimeLiveData: LiveData<CollectionResult> =
-            Firestore.getFromCollection("collectionId", true)
+//Get the collection with realtime listener attached to it
+val collectionRealtimeLiveData: LiveData<CollectionResult> = Firestore.getFromCollection("collectionId", true)
 
-        //Write data to collection
-        val addToCollection: LiveData<CollectionWrite> =
-            Firestore.addToCollection("collectionId", mapOf("one" to 1, "two" to 2))
+//Write data to collection
+val addToCollection: LiveData<CollectionWrite> = Firestore.addToCollection("collectionId", mapOf("one" to 1, "two" to 2))
 
-        //Write data to document
-        val addToDocument: LiveData<DocumentWrite> =
-            Firestore.addToDocument(
-                "collectionId/documentId",
-                mapOf("one" to 1, "two" to 2)
-            )
+//Write data to document
+val addToDocument: LiveData<DocumentWrite> = Firestore.addToDocument("collectionId/documentId", mapOf("one" to 1, "two" to 2))
 
-        //Using kotlin extension on string for single time result
-        val documentsKtxLiveData: LiveData<DocumentResult> =
-            "collectionId/documentId".getFirebaseDocuments()
+//Using kotlin extension on string for single time result
+val documentsKtxLiveData: LiveData<DocumentResult> = "collectionId/documentId".getFirebaseDocuments()
 
-        //Using kotlin extension on string for realtime result
-        val documentsKtxRealtimeLiveData: LiveData<DocumentResult> =
-            "collectionId/documentId".getFirebaseDocuments(true)
+//Using kotlin extension on string for realtime result
+val documentsKtxRealtimeLiveData: LiveData<DocumentResult> = "collectionId/documentId".getFirebaseDocuments(true)
         //or
-        //Get the document data to the model class
-        val modelFormedKtxLiveData: LiveData<Any> =
-            "collectionId/documentId".getFirebaseDocumentsIn<Any>()
+//Get the document data to the model class
+val modelFormedKtxLiveData: LiveData<Any> = "collectionId/documentId".getFirebaseDocumentsIn<Any>()
 
-        //Get the document data to the model class in realtime
-        val modelFormedKtxRealtimeLiveData: LiveData<Any> =
-            "collectionId/documentId".getFirebaseDocumentsIn<Any>(true)
+//Get the document data to the model class in realtime
+val modelFormedKtxRealtimeLiveData: LiveData<Any> = "collectionId/documentId".getFirebaseDocumentsIn<Any>(true)
 
-        //Get documents in the collection using ktx
-        val collectionKtxLiveData: LiveData<CollectionResult> =
-            "collectionId".getFirebaseCollection()
+//Get documents in the collection using ktx
+val collectionKtxLiveData: LiveData<CollectionResult> = "collectionId".getFirebaseCollection()
         //or
-        //Listen for the realtime update
-        val collectionRealtimeKtxLiveData: LiveData<CollectionResult> =
-            "collectionId".getFirebaseCollection(true)
+//Listen for the realtime update
+val collectionRealtimeKtxLiveData: LiveData<CollectionResult> = "collectionId".getFirebaseCollection(true)
  
 ```
 
@@ -90,17 +75,24 @@ Here are the ways to use cloud firestore APIs
 Here are the ways to use cloud storage APIs
 
 ```kotlin
-	//Upload file by providing file name, storage path and file path
-        val uploadFileLiveData: LiveData<StorageResult> =
-            Storage.uploadFile("myimage.jpg","storagePath", "filePath")
+//Upload file by providing file name, storage path and file path
+val uploadFileLiveData: LiveData<StorageResult> = Storage.uploadFile("myimage.jpg","storagePath", "filePath")
 
-        //Upload file stream by providing file name, storage path and file path
-        val uploadFileStreamLiveData: LiveData<StorageResult> =
-            Storage.uploadFileStream("myimage.jpg","storagePath", "filePath")
+//Upload file stream by providing file name, storage path and file path
+val uploadFileStreamLiveData: LiveData<StorageResult> = Storage.uploadFileStream("myimage.jpg","storagePath", "filePath")
 
-        //Upload bitmap by providing file name, storage path and bitmap
-        val uploadBitmapLiveData: LiveData<StorageResult> =
-            Storage.uploadBitmap("myimage.jpg","storagePath", bitmap)
+//Upload bitmap by providing file name, storage path and bitmap
+val uploadBitmapLiveData: LiveData<StorageResult> = Storage.uploadBitmap("myimage.jpg","storagePath", bitmap)
+
+//Get the download url for the multimedia
+val getDownloadUrlLiveData: LiveData<StorageDownloadResult> = Storage.getDownloadUrl("myimage.jpg", "storagePath")
+
+//Download into another file
+val downloadFileLiveData: LiveData<StorageDownloadResult> = Storage.downloadFile("myimage.jpg", "storagePath", file)
+
+//Download file into local memory
+val ONE_MEGABYTE: Long = 1024 * 1024
+val downloadTempStorageLiveData: LiveData<StorageDownloadResult> = Storage.downloadInMemory("myimage.jpg", "storagePath", ONE_MEGABYTE)
 
 ```
 
@@ -108,14 +100,14 @@ Here are the ways to use cloud storage APIs
 Here are the ways to add events
 
 ```kotlin
-        //Log event to firebase by providing bundle
-        logBundledEvent("eventName") {
-            putString("name", "xyz")
-            putString("info", "test")
-        }
+//Log event to firebase by providing bundle
+logBundledEvent("eventName") {
+	putString("name", "xyz")
+	putString("info", "test")
+	}
 
-        //log event to firebase without bundle
-        logEvent("eventName")
+//log event to firebase without bundle
+logEvent("eventName")
 
 ```
 
@@ -123,21 +115,21 @@ Here are the ways to add events
 Update app behaviour without updating app on playstore using the remote config
 
 ```kotlin
-        //Initiate the remote config to provide the default value and to change other params
-        RemoteConfig.initRemoteConfig(R.xml.remote_config_defaults)
+//Initiate the remote config to provide the default value and to change other params
+RemoteConfig.initRemoteConfig(R.xml.remote_config_defaults)
 
-        //Fetch and activate to update the remote config values in realtime
-        val isFetchedLiveData: LiveData<RemoteConfigResult> = RemoteConfig.fetchAndShow()
+//Fetch and activate to update the remote config values in realtime
+val isFetchedLiveData: LiveData<RemoteConfigResult> = RemoteConfig.fetchAndShow()
 
-        //Just fetch but do not update the remote config values
-        RemoteConfig.justFetch()
+//Just fetch but do not update the remote config values
+RemoteConfig.justFetch()
 
-        //Activate the fetched result so as to get latest remote config values
-        val isFetchedResultActivated: LiveData<RemoteConfigResult> = RemoteConfig.activateFetchedResults()
+//Activate the fetched result so as to get latest remote config values
+val isFetchedResultActivated: LiveData<RemoteConfigResult> = RemoteConfig.activateFetchedResults()
 
-        //Get the value from remote config using these predefined methods
-        RemoteConfig.getRemoteBoolean("is_update_available")
-        RemoteConfig.getRemoteDouble("current_version")
-        RemoteConfig.getRemoteLong("last_updated_timestamp")
-        RemoteConfig.getRemoteString("app_theme_name")
+//Get the value from remote config using these predefined methods
+RemoteConfig.getRemoteBoolean("is_update_available")
+RemoteConfig.getRemoteDouble("current_version")
+RemoteConfig.getRemoteLong("last_updated_timestamp")
+RemoteConfig.getRemoteString("app_theme_name")
 ```
