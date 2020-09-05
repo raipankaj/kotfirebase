@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
         //Upload bitmap by providing cloud storage path and bitmap
         val uploadBitmapLiveData: LiveData<StorageResult> =
-            Storage.uploadBitmap("myimage.jpg","storagePath", bitmap)
+            Storage.uploadBitmap("myimage.jpg","storagePath",bitmap)
 
         val getDownloadUrlLiveData: LiveData<StorageDownloadResult> =
             Storage.getDownloadUrl("myimage.jpg", "storagePath")
