@@ -15,25 +15,46 @@ object KotFirestore {
 
     val firestore = FirebaseFirestore.getInstance()
 
+    /**
+     * Based on the collection id get all the documents in that
+     * also if syncRealtime is enabled then listen for the real-
+     * time changes.
+     * Return the well formed model based on the provided model type.
+     */
     inline fun <reified T> getFromCollectionInto(
         collectionPath: String,
+        syncRealtime: Boolean = false,
         noinline queryFunc: (Query.() -> Query)? = null
     ): LiveData<List<T>> {
 
         val mutableLiveData = MutableLiveData<List<T>>()
 
-        if (queryFunc != null) {
-            firestore.collection(collectionPath).queryFunc()
-                .get()
-                .addOnSuccessListener {
-                    mutableLiveData.postValue(it.toObjects(T::class.java))
-                }
+        if (syncRealtime) {
+            if (queryFunc != null) {
+                firestore.collection(collectionPath).queryFunc()
+                    .addSnapshotListener { value, error ->
+                        mutableLiveData.postValue(value?.toObjects(T::class.java))
+                    }
+            } else {
+                firestore.collection(collectionPath)
+                    .addSnapshotListener { value, error ->
+                        mutableLiveData.postValue(value?.toObjects(T::class.java))
+                    }
+            }
         } else {
-            firestore.collection(collectionPath)
-                .get()
-                .addOnSuccessListener {
-                    mutableLiveData.postValue(it.toObjects(T::class.java))
-                }
+            if (queryFunc != null) {
+                firestore.collection(collectionPath).queryFunc()
+                    .get()
+                    .addOnSuccessListener {
+                        mutableLiveData.postValue(it.toObjects(T::class.java))
+                    }
+            } else {
+                firestore.collection(collectionPath)
+                    .get()
+                    .addOnSuccessListener {
+                        mutableLiveData.postValue(it.toObjects(T::class.java))
+                    }
+            }
         }
 
         return mutableLiveData
