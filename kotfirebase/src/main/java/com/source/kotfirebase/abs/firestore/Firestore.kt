@@ -4,15 +4,40 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.source.kotfirebase.data.CollectionResult
 import com.source.kotfirebase.data.CollectionWrite
 import com.source.kotfirebase.data.DocumentResult
 import com.source.kotfirebase.data.DocumentWrite
 
-object Firestore : FirestoreServices {
+object KotFirestore {
 
     val firestore = FirebaseFirestore.getInstance()
+
+    inline fun <reified T> getFromCollectionInto(
+        collectionPath: String,
+        noinline queryFunc: (Query.() -> Query)? = null
+    ): LiveData<List<T>> {
+
+        val mutableLiveData = MutableLiveData<List<T>>()
+
+        if (queryFunc != null) {
+            firestore.collection(collectionPath).queryFunc()
+                .get()
+                .addOnSuccessListener {
+                    mutableLiveData.postValue(it.toObjects(T::class.java))
+                }
+        } else {
+            firestore.collection(collectionPath)
+                .get()
+                .addOnSuccessListener {
+                    mutableLiveData.postValue(it.toObjects(T::class.java))
+                }
+        }
+
+        return mutableLiveData
+    }
 
     /**
      * Perform the network using the firebase existing API to fetch result
@@ -22,39 +47,36 @@ object Firestore : FirestoreServices {
      * onResume state then live data will take care of storing result but not
      * delivering it until they are in onResume state once again.
      */
-    override fun getFromDocument(
+    fun getFromDocument(
         document: String,
-        syncRealtime: Boolean
+        syncRealtime: Boolean = false
     ): LiveData<DocumentResult> {
 
         val documentLiveData = MutableLiveData<DocumentResult>()
 
-        performNetworkCall {
-            if (syncRealtime) {
-                document(document)
-                    .addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+        if (syncRealtime) {
+            firestore.document(document)
+                .addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
 
-                        val documentResult = if (firebaseFirestoreException == null) {
-                            DocumentResult(documentSnapshot = documentSnapshot)
-                        } else {
-                            DocumentResult(firestoreException = firebaseFirestoreException)
-                        }
+                    val documentResult = if (firebaseFirestoreException == null) {
+                        DocumentResult(documentSnapshot = documentSnapshot)
+                    } else {
+                        DocumentResult(firestoreException = firebaseFirestoreException)
+                    }
 
-                        documentLiveData.postValue(documentResult)
-                    }
-            } else {
-                document(document)
-                    .get()
-                    .addOnSuccessListener {
-                        val documentResult = DocumentResult(documentSnapshot = it)
-                        documentLiveData.postValue(documentResult)
-                    }
-                    .addOnFailureListener {
-                        val documentResult = DocumentResult(exception = it)
-                        documentLiveData.postValue(documentResult)
-                    }
-            }
-
+                    documentLiveData.postValue(documentResult)
+                }
+        } else {
+            firestore.document(document)
+                .get()
+                .addOnSuccessListener {
+                    val documentResult = DocumentResult(documentSnapshot = it)
+                    documentLiveData.postValue(documentResult)
+                }
+                .addOnFailureListener {
+                    val documentResult = DocumentResult(exception = it)
+                    documentLiveData.postValue(documentResult)
+                }
         }
 
         return documentLiveData
@@ -69,59 +91,54 @@ object Firestore : FirestoreServices {
      * onResume state then live data will take care of storing result but not
      * delivering it until they are in onResume state once again.
      */
-    override fun getFromCollection(
+    fun getFromCollection(
         collection: String,
-        syncRealtime: Boolean
+        syncRealtime: Boolean = false
     ): LiveData<CollectionResult> {
 
         val collectionLiveData = MutableLiveData<CollectionResult>()
+        if (syncRealtime) {
+            firestore.collection(collection)
+                .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    val collectionResult = if (firebaseFirestoreException == null) {
+                        CollectionResult(querySnapshot = querySnapshot)
+                    } else {
+                        CollectionResult(firestoreException = firebaseFirestoreException)
+                    }
 
-        performNetworkCall {
-            if (syncRealtime) {
-                collection(collection)
-                    .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                        val collectionResult = if (firebaseFirestoreException == null) {
-                            CollectionResult(querySnapshot = querySnapshot)
-                        } else {
-                            CollectionResult(firestoreException = firebaseFirestoreException)
-                        }
-
-                        /*Post the collection result which either have querySnapshot
-                         or firestore exception*/
-                        collectionLiveData.postValue(collectionResult)
-                    }
-            } else {
-                collection(collection)
-                    .get()
-                    .addOnSuccessListener {
-                        val collectionResult = CollectionResult(querySnapshot = it)
-                        //Post the collection result which will have querySnapshot
-                        collectionLiveData.postValue(collectionResult)
-                    }
-                    .addOnFailureListener {
-                        //Post the collection result which will have exception
-                        val collectionResult = CollectionResult(exception = it)
-                        collectionLiveData.postValue(collectionResult)
-                    }
-            }
+                    /*Post the collection result which either have querySnapshot
+                     or firestore exception*/
+                    collectionLiveData.postValue(collectionResult)
+                }
+        } else {
+            firestore.collection(collection)
+                .get()
+                .addOnSuccessListener {
+                    val collectionResult = CollectionResult(querySnapshot = it)
+                    //Post the collection result which will have querySnapshot
+                    collectionLiveData.postValue(collectionResult)
+                }
+                .addOnFailureListener {
+                    //Post the collection result which will have exception
+                    val collectionResult = CollectionResult(exception = it)
+                    collectionLiveData.postValue(collectionResult)
+                }
         }
 
         return collectionLiveData
     }
 
 
-    override fun addToCollection(collection: String, any: Any): LiveData<CollectionWrite> {
+    fun addToCollection(collection: String, any: Any): LiveData<CollectionWrite> {
         val mutableLiveData = MutableLiveData<CollectionWrite>()
 
-        performNetworkCall {
-            collection(collection)
-                .add(any)
-                .addOnSuccessListener {
-                    mutableLiveData.postValue(CollectionWrite(it))
-                }.addOnFailureListener {
-                    mutableLiveData.postValue(CollectionWrite(exception = it))
-                }
-        }
+        firestore.collection(collection)
+            .add(any)
+            .addOnSuccessListener {
+                mutableLiveData.postValue(CollectionWrite(it))
+            }.addOnFailureListener {
+                mutableLiveData.postValue(CollectionWrite(exception = it))
+            }
 
         return mutableLiveData
     }
@@ -130,7 +147,7 @@ object Firestore : FirestoreServices {
      * Add the document based on the document id, SetOption is by default set to
      * null, that means new values are written in the document every time.
      */
-    override fun addToDocument(
+    fun addToDocument(
         document: String,
         any: Any,
         setOptions: SetOptions?
@@ -138,18 +155,16 @@ object Firestore : FirestoreServices {
 
         val mutableLiveData = MutableLiveData<DocumentWrite>()
 
-        performNetworkCall {
-            if (setOptions == null) {
-                document(document)
-                    .set(any)
-            } else {
-                document(document)
-                    .set(any, setOptions)
-            }.addOnSuccessListener {
-                mutableLiveData.postValue(DocumentWrite(true))
-            }.addOnFailureListener {
-                mutableLiveData.postValue(DocumentWrite(exception = it))
-            }
+        if (setOptions == null) {
+            firestore.document(document)
+                .set(any)
+        } else {
+            firestore.document(document)
+                .set(any, setOptions)
+        }.addOnSuccessListener {
+            mutableLiveData.postValue(DocumentWrite(true))
+        }.addOnFailureListener {
+            mutableLiveData.postValue(DocumentWrite(exception = it))
         }
 
         return mutableLiveData
@@ -165,21 +180,19 @@ object Firestore : FirestoreServices {
     ): LiveData<T> {
         val mutableLiveData = MutableLiveData<T>()
 
-        performNetworkCall {
-            if (sync) {
-                document(document)
-                    .addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
-                        val t = documentSnapshot?.toObject(T::class.java)
-                        mutableLiveData.postValue(t)
-                    }
-            } else {
-                document(document)
-                    .get()
-                    .addOnSuccessListener { documentSnapshot ->
-                        val t = documentSnapshot?.toObject(T::class.java)
-                        mutableLiveData.postValue(t)
-                    }
-            }
+        if (sync) {
+            firestore.document(document)
+                .addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+                    val t = documentSnapshot?.toObject(T::class.java)
+                    mutableLiveData.postValue(t)
+                }
+        } else {
+            firestore.document(document)
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
+                    val t = documentSnapshot?.toObject(T::class.java)
+                    mutableLiveData.postValue(t)
+                }
         }
 
         return mutableLiveData
@@ -209,13 +222,4 @@ object Firestore : FirestoreServices {
         builder.setSslEnabled(isSLLEnabled)
     }
 
-
-    /**
-     * A utility method to perform firestore APIs call without need to write
-     * getInstance() over and over with an added advantage of perform certain
-     * activity based on if-else condition.
-     */
-    inline fun performNetworkCall(firebaseFunc: FirebaseFirestore.() -> Unit) {
-        firebaseFunc(firestore)
-    }
 }

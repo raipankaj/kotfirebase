@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.observe
 import com.source.kotfirebase.*
-import com.source.kotfirebase.abs.firestore.Firestore
+import com.source.kotfirebase.abs.firestore.KotFirestore
 import com.source.kotfirebase.abs.remoteconfig.RemoteConfig
 import com.source.kotfirebase.abs.storage.Storage
 import com.source.kotfirebase.data.*
@@ -43,15 +43,15 @@ class MainActivity : AppCompatActivity() {
     private fun cloudStorage() {
         //Upload file by providing cloud storage path and file path
         val uploadFileLiveData: LiveData<StorageResult> =
-            Storage.uploadFile("myimage.jpg","storagePath", "filePath")
+            Storage.uploadFile("myimage.jpg", "storagePath", "filePath")
 
         //Upload file stream by providing cloud storage path and file path
         val uploadFileStreamLiveData: LiveData<StorageResult> =
-            Storage.uploadFileStream("myimage.jpg","storagePath", "filePath")
+            Storage.uploadFileStream("myimage.jpg", "storagePath", "filePath")
 
         //Upload bitmap by providing cloud storage path and bitmap
         val uploadBitmapLiveData: LiveData<StorageResult> =
-            Storage.uploadBitmap("myimage.jpg","storagePath",bitmap)
+            Storage.uploadBitmap("myimage.jpg", "storagePath", bitmap)
 
         val getDownloadUrlLiveData: LiveData<StorageDownloadResult> =
             Storage.getDownloadUrl("myimage.jpg", "storagePath")
@@ -75,7 +75,8 @@ class MainActivity : AppCompatActivity() {
         RemoteConfig.justFetch()
 
         //Activate the fetched result so as to get updated values
-        val isFetchedResultActivated: LiveData<RemoteConfigResult> = RemoteConfig.activateFetchedResults()
+        val isFetchedResultActivated: LiveData<RemoteConfigResult> =
+            RemoteConfig.activateFetchedResults()
 
         //Get the value from the remote config using these predefined methods
         RemoteConfig.getRemoteBoolean("is_update_available")
@@ -87,39 +88,42 @@ class MainActivity : AppCompatActivity() {
     private fun cloudFirestore() {
         //Get single time result
         val documentsLiveData: LiveData<DocumentResult> =
-            Firestore.getFromDocument("collectionId/documentId")
+            KotFirestore.getFromDocument("collectionId/documentId")
+
+        KotFirestore.getFromCollectionInto<Any>("collectionId")
+
         //or
         //Get realtime result
         val documentsRealtimeLiveData: LiveData<DocumentResult> =
-            Firestore.getFromDocument("collectionId/documentId", true)
+            KotFirestore.getFromDocument("collectionId/documentId", true)
 
         //Get the document data to the model class
         val modelFormedLiveData: LiveData<Any> =
-            Firestore.getDocumentResultsIn<Any>("collectionId/documentId")
+            KotFirestore.getDocumentResultsIn<Any>("collectionId/documentId")
         //or
         //Get the document data to the model class in realtime
         val modelFormedRealtimeLiveData: LiveData<Any> =
-            Firestore.getDocumentResultsIn<Any>("collectionId/documentId", true)
+            KotFirestore.getDocumentResultsIn<Any>("collectionId/documentId", true)
 
-        Firestore.addToCollection("sa","ss").observe(this) {
+        KotFirestore.addToCollection("sa", "ss").observe(this) {
             it.documentReference
         }
 
         //Get the documents in collection
         val collectionLiveData: LiveData<CollectionResult> =
-            Firestore.getFromCollection("collectionId")
+            KotFirestore.getFromCollection("collectionId")
         //or
         //Get the collection with realtime listener attached to it
         val collectionRealtimeLiveData: LiveData<CollectionResult> =
-            Firestore.getFromCollection("collectionId", true)
+            KotFirestore.getFromCollection("collectionId", true)
 
         //Write data to collection
         val addToCollection: LiveData<CollectionWrite> =
-            Firestore.addToCollection("collectionId", mapOf("one" to 1, "two" to 2))
+            KotFirestore.addToCollection("collectionId", mapOf("one" to 1, "two" to 2))
 
         //Write data to document
         val addToDocument: LiveData<DocumentWrite> =
-            Firestore.addToDocument(
+            KotFirestore.addToDocument(
                 "collectionId/documentId",
                 mapOf("one" to 1, "two" to 2)
             )
