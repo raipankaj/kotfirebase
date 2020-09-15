@@ -16,7 +16,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
 
-object Storage : StorageServices {
+object KotStorage : StorageServices {
 
     /**
      * Upload bitmap by providing the name of the file and storage bucket.

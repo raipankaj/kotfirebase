@@ -8,7 +8,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.source.kotfirebase.data.RemoteConfigResult
 
-object RemoteConfig : RemoteConfigService {
+object KotRemoteConfig : RemoteConfigService {
 
     private val firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
 

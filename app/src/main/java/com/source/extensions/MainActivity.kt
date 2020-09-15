@@ -3,11 +3,10 @@ package com.source.extensions
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.observe
 import com.source.kotfirebase.*
 import com.source.kotfirebase.abs.firestore.KotFirestore
-import com.source.kotfirebase.abs.remoteconfig.RemoteConfig
-import com.source.kotfirebase.abs.storage.Storage
+import com.source.kotfirebase.abs.remoteconfig.KotRemoteConfig
+import com.source.kotfirebase.abs.storage.KotStorage
 import com.source.kotfirebase.data.*
 
 class MainActivity : AppCompatActivity() {
@@ -43,46 +42,46 @@ class MainActivity : AppCompatActivity() {
     private fun cloudStorage() {
         //Upload file by providing cloud storage path and file path
         val uploadFileLiveData: LiveData<StorageResult> =
-            Storage.uploadFile("myimage.jpg", "storagePath", "filePath")
+            KotStorage.uploadFile("myimage.jpg", "storagePath", "filePath")
 
         //Upload file stream by providing cloud storage path and file path
         val uploadFileStreamLiveData: LiveData<StorageResult> =
-            Storage.uploadFileStream("myimage.jpg", "storagePath", "filePath")
+            KotStorage.uploadFileStream("myimage.jpg", "storagePath", "filePath")
 
         //Upload bitmap by providing cloud storage path and bitmap
         val uploadBitmapLiveData: LiveData<StorageResult> =
-            Storage.uploadBitmap("myimage.jpg", "storagePath", bitmap)
+            KotStorage.uploadBitmap("myimage.jpg", "storagePath", bitmap)
 
         val getDownloadUrlLiveData: LiveData<StorageDownloadResult> =
-            Storage.getDownloadUrl("myimage.jpg", "storagePath")
+            KotStorage.getDownloadUrl("myimage.jpg", "storagePath")
 
         val downloadFileLiveData: LiveData<StorageDownloadResult> =
-            Storage.downloadFile("myimage.jpg", "storagePath", file)
+            KotStorage.downloadFile("myimage.jpg", "storagePath", file)
 
         val ONE_MEGABYTE: Long = 1024 * 1024
         val downloadTempStorageLiveData: LiveData<StorageDownloadResult> =
-            Storage.downloadInMemory("myimage.jpg", "storagePath", ONE_MEGABYTE)
+            KotStorage.downloadInMemory("myimage.jpg", "storagePath", ONE_MEGABYTE)
     }
 
     private fun remoteConfig() {
         //Initiate the remote config to provide the default value and to change other params
-        RemoteConfig.initRemoteConfig(R.xml.remote_config_defaults)
+        KotRemoteConfig.initRemoteConfig(R.xml.remote_config_defaults)
 
         //Fetch and activate to show the update the result in realtime
-        val isFetchedLiveData: LiveData<RemoteConfigResult> = RemoteConfig.fetchAndShow()
+        val isFetchedLiveData: LiveData<RemoteConfigResult> = KotRemoteConfig.fetchAndShow()
 
         //Just fetch but do not update the values
-        RemoteConfig.justFetch()
+        KotRemoteConfig.justFetch()
 
         //Activate the fetched result so as to get updated values
         val isFetchedResultActivated: LiveData<RemoteConfigResult> =
-            RemoteConfig.activateFetchedResults()
+            KotRemoteConfig.activateFetchedResults()
 
         //Get the value from the remote config using these predefined methods
-        RemoteConfig.getRemoteBoolean("is_update_available")
-        RemoteConfig.getRemoteDouble("current_version")
-        RemoteConfig.getRemoteLong("last_updated_timestamp")
-        RemoteConfig.getRemoteString("app_theme_name")
+        KotRemoteConfig.getRemoteBoolean("is_update_available")
+        KotRemoteConfig.getRemoteDouble("current_version")
+        KotRemoteConfig.getRemoteLong("last_updated_timestamp")
+        KotRemoteConfig.getRemoteString("app_theme_name")
     }
 
     private fun cloudFirestore() {
