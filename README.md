@@ -26,38 +26,43 @@ Here are the ways to use cloud firestore APIs
 
 ```kotlin
 //Get single time result
-val documentsLiveData: LiveData<DocumentResult> =
-Firestore.getFromDocument("collectionId/documentId")
-        //or
-//Get realtime result
-val documentsRealtimeLiveData: LiveData<DocumentResult> =
-Firestore.getFromDocument("collectionId/documentId", true)
+val documentsLiveData: LiveData<DocumentResult> = KotFirestore.getFromDocument("collectionId/documentId")
+//or get realtime update using following method
+val documentsRealtimeLiveData: LiveData<DocumentResult> = KotFirestore.getFromDocument("collectionId/documentId", true)
 
 //Get the document data to the model class
-val modelFormedLiveData: LiveData<Any> = Firestore.getDocumentResultsIn<Any>("collectionId/documentId")
-        //or
-//Get the document data to the model class in realtime
-val modelFormedRealtimeLiveData: LiveData<Any> = Firestore.getDocumentResultsIn<Any>("collectionId/documentId", true)
+val modelFormedLiveData: LiveData<Any> = KotFirestore.getFromDocumentInto<Any>("collectionId/documentId")
+//or get the document data to the model class in realtime
+val modelFormedRealtimeLiveData: LiveData<Any> = KotFirestore.getFromDocumentInto<Any>("collectionId/documentId", true)
 
 //Get the documents in collection
-val collectionLiveData: LiveData<CollectionResult> = Firestore.getFromCollection("collectionId")
-        //or
-//Get the collection with realtime listener attached to it
-val collectionRealtimeLiveData: LiveData<CollectionResult> = Firestore.getFromCollection("collectionId", true)
+val collectionLiveData: LiveData<CollectionResult> = KotFirestore.getFromCollection("collectionId")
+//or get the collection with realtime listener attached to it
+val collectionRealtimeLiveData: LiveData<CollectionResult> = KotFirestore.getFromCollection("collectionId", true)
 
-//Write data to collection
-val addToCollection: LiveData<CollectionWrite> = Firestore.addToCollection("collectionId", mapOf("one" to 1, "two" to 2))
+//Get the documents from collection into list of model
+val modelFormedCollectionLiveData: LiveData<List<Any>> = KotFirestore.getFromCollectionInto<Any>("collectionId")
+//or get the documents from collection into list of model with realtime listener
+val modelFormedCollectionRealtimeLiveData: LiveData<List<Any>> = KotFirestore.getFromCollectionInto("collectionId", true)
 
-//Write data to document
-val addToDocument: LiveData<DocumentWrite> = Firestore.addToDocument("collectionId/documentId", mapOf("one" to 1, "two" to 2))
+//Add document to collection
+val addToCollection: LiveData<CollectionWrite> = KotFirestore.addDocumentToCollection("collectionId", mapOf("one" to 1, "two" to 2))
+
+//Write data to individual document based on document ID
+val addToDocument: LiveData<DocumentWrite> = KotFirestore.addDocumentWithID("collectionId/documentId", mapOf("one" to 1, "two" to 2))
+
+//Update document based on document ID
+val updateDocument: LiveData<DocumentWrite> = KotFirestore.updateDocumentByID("collectionId/documentId", mapOf("one" to 1, "two" to 2))
+
+//Delete document based on document ID
+KotFirestore.deleteDocumentByID("collectionId/documentID")
 
 //Using kotlin extension on string for single time result
 val documentsKtxLiveData: LiveData<DocumentResult> = "collectionId/documentId".getFirebaseDocuments()
 
 //Using kotlin extension on string for realtime result
 val documentsKtxRealtimeLiveData: LiveData<DocumentResult> = "collectionId/documentId".getFirebaseDocuments(true)
-        //or
-//Get the document data to the model class
+//or get the document data to the model class
 val modelFormedKtxLiveData: LiveData<Any> = "collectionId/documentId".getFirebaseDocumentsIn<Any>()
 
 //Get the document data to the model class in realtime
@@ -65,10 +70,8 @@ val modelFormedKtxRealtimeLiveData: LiveData<Any> = "collectionId/documentId".ge
 
 //Get documents in the collection using ktx
 val collectionKtxLiveData: LiveData<CollectionResult> = "collectionId".getFirebaseCollection()
-        //or
-//Listen for the realtime update
+//or listen for the realtime update
 val collectionRealtimeKtxLiveData: LiveData<CollectionResult> = "collectionId".getFirebaseCollection(true)
- 
 ```
 
 <h3>Cloud Storage</h3>
