@@ -89,44 +89,49 @@ class MainActivity : AppCompatActivity() {
         //Get single time result
         val documentsLiveData: LiveData<DocumentResult> =
             KotFirestore.getFromDocument("collectionId/documentId")
-
-        KotFirestore.getFromCollectionInto<Any>("collectionId")
-
-        //or
-        //Get realtime result
+        //or get realtime update using following method
         val documentsRealtimeLiveData: LiveData<DocumentResult> =
             KotFirestore.getFromDocument("collectionId/documentId", true)
 
         //Get the document data to the model class
         val modelFormedLiveData: LiveData<Any> =
-            KotFirestore.getDocumentResultsIn<Any>("collectionId/documentId")
-        //or
-        //Get the document data to the model class in realtime
+            KotFirestore.getFromDocumentInto<Any>("collectionId/documentId")
+        //or get the document data to the model class in realtime
         val modelFormedRealtimeLiveData: LiveData<Any> =
-            KotFirestore.getDocumentResultsIn<Any>("collectionId/documentId", true)
-
-        KotFirestore.addToCollection("sa", "ss").observe(this) {
-            it.documentReference
-        }
+            KotFirestore.getFromDocumentInto<Any>("collectionId/documentId", true)
 
         //Get the documents in collection
         val collectionLiveData: LiveData<CollectionResult> =
             KotFirestore.getFromCollection("collectionId")
-        //or
-        //Get the collection with realtime listener attached to it
+        //or get the collection with realtime listener attached to it
         val collectionRealtimeLiveData: LiveData<CollectionResult> =
             KotFirestore.getFromCollection("collectionId", true)
 
-        //Write data to collection
-        val addToCollection: LiveData<CollectionWrite> =
-            KotFirestore.addToCollection("collectionId", mapOf("one" to 1, "two" to 2))
+        //Get the documents from collection into list of model
+        val modelFormedCollectionLiveData: LiveData<List<Any>> =
+            KotFirestore.getFromCollectionInto<Any>("collectionId")
+        //or get the documents from collection into list of model with realtime listener
+        val modelFormedCollectionRealtimeLiveData: LiveData<List<Any>> =
+            KotFirestore.getFromCollectionInto("collectionId", true)
 
-        //Write data to document
+        //Add document to collection
+        val addToCollection: LiveData<CollectionWrite> =
+            KotFirestore.addDocumentToCollection("collectionId", mapOf("one" to 1, "two" to 2))
+
+        //Write data to individual document based on document ID
         val addToDocument: LiveData<DocumentWrite> =
-            KotFirestore.addToDocument(
-                "collectionId/documentId",
-                mapOf("one" to 1, "two" to 2)
+            KotFirestore.addDocumentWithID(
+                "collectionId/documentId", mapOf("one" to 1, "two" to 2)
             )
+
+        //Update document based on document ID
+        val updateDocument: LiveData<DocumentWrite> =
+            KotFirestore.updateDocumentByID(
+                "collectionId/documentId", mapOf("one" to 1, "two" to 2)
+            )
+
+        //Delete document based on document ID
+        KotFirestore.deleteDocumentByID("collectionId/documentID")
 
         //Using kotlin extension on string for single time result
         val documentsKtxLiveData: LiveData<DocumentResult> =

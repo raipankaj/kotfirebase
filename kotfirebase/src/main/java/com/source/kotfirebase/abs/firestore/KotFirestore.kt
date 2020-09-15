@@ -2,10 +2,7 @@ package com.source.kotfirebase.abs.firestore
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreSettings
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.*
 import com.source.kotfirebase.data.CollectionResult
 import com.source.kotfirebase.data.CollectionWrite
 import com.source.kotfirebase.data.DocumentResult
@@ -29,26 +26,32 @@ object KotFirestore {
 
         val mutableLiveData = MutableLiveData<List<T>>()
 
-        performQuery(collectionID) {
-            if (syncRealtime) {
-                if (queryFunc != null) queryFunc()
-                addSnapshotListener { value, error ->
-                    mutableLiveData.postValue(value?.toObjects(T::class.java))
-                }
-            } else {
-                if (queryFunc != null) queryFunc()
-                get().addOnSuccessListener {
-                    mutableLiveData.postValue(it.toObjects(T::class.java))
-                }
+        if (syncRealtime) {
+            getCollection(collectionID, queryFunc).addSnapshotListener { value, error ->
+                mutableLiveData.postValue(value?.toObjects(T::class.java))
+            }
+        } else {
+            getCollection(collectionID, queryFunc).get().addOnSuccessListener {
+                mutableLiveData.postValue(it?.toObjects(T::class.java))
             }
         }
 
         return mutableLiveData
     }
 
-    fun performQuery(collectionID: String, queryFunc: Query.() -> Unit) {
-        firestore.collection(collectionID)
-            .queryFunc()
+    fun getCollection(
+        collectionID: String,
+        queryFunc: (Query.() -> Query)?
+    ): Query {
+        return if (queryFunc != null) {
+            firestore.collection(collectionID).queryFunc()
+        } else {
+            firestore.collection(collectionID)
+        }
+    }
+
+    fun getDocument(documentID: String): DocumentReference {
+        return firestore.document(documentID)
     }
 
     /**
@@ -60,37 +63,29 @@ object KotFirestore {
      * delivering it until they are in onResume state once again.
      */
     fun getFromCollection(
-        collection: String,
+        collectionID: String,
         syncRealtime: Boolean = false,
         queryFunc: (Query.() -> Query)? = null
     ): LiveData<CollectionResult> {
 
         val collectionLiveData = MutableLiveData<CollectionResult>()
+
         if (syncRealtime) {
-            firestore.collection(collection)
+            getCollection(collectionID, queryFunc)
                 .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                     val collectionResult = if (firebaseFirestoreException == null) {
                         CollectionResult(querySnapshot = querySnapshot)
                     } else {
                         CollectionResult(firestoreException = firebaseFirestoreException)
                     }
-
-                    /*Post the collection result which either have querySnapshot
-                     or firestore exception*/
                     collectionLiveData.postValue(collectionResult)
                 }
         } else {
-            firestore.collection(collection)
-                .get()
+            getCollection(collectionID, queryFunc).get()
                 .addOnSuccessListener {
-                    val collectionResult = CollectionResult(querySnapshot = it)
-                    //Post the collection result which will have querySnapshot
-                    collectionLiveData.postValue(collectionResult)
-                }
-                .addOnFailureListener {
-                    //Post the collection result which will have exception
-                    val collectionResult = CollectionResult(exception = it)
-                    collectionLiveData.postValue(collectionResult)
+                    collectionLiveData.postValue(CollectionResult(querySnapshot = it))
+                }.addOnFailureListener {
+                    collectionLiveData.postValue(CollectionResult(exception = it))
                 }
         }
 
@@ -106,16 +101,15 @@ object KotFirestore {
      * delivering it until they are in onResume state once again.
      */
     fun getFromDocument(
-        document: String,
+        documentID: String,
         syncRealtime: Boolean = false
     ): LiveData<DocumentResult> {
 
         val documentLiveData = MutableLiveData<DocumentResult>()
 
         if (syncRealtime) {
-            firestore.document(document)
+            getDocument(documentID)
                 .addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
-
                     val documentResult = if (firebaseFirestoreException == null) {
                         DocumentResult(documentSnapshot = documentSnapshot)
                     } else {
@@ -125,7 +119,7 @@ object KotFirestore {
                     documentLiveData.postValue(documentResult)
                 }
         } else {
-            firestore.document(document)
+            getDocument(documentID)
                 .get()
                 .addOnSuccessListener {
                     val documentResult = DocumentResult(documentSnapshot = it)
@@ -145,18 +139,18 @@ object KotFirestore {
      * Pass the data class type while calling getDocumentResultsIn()
      */
     inline fun <reified T> getFromDocumentInto(
-        document: String,
-        sync: Boolean = false
+        documentID: String,
+        syncRealtime: Boolean = false
     ): LiveData<T> {
         val mutableLiveData = MutableLiveData<T>()
 
-        if (sync) {
-            firestore.document(document)
+        if (syncRealtime) {
+            getDocument(documentID)
                 .addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
                     mutableLiveData.postValue(documentSnapshot?.toObject(T::class.java))
                 }
         } else {
-            firestore.document(document)
+            getDocument(documentID)
                 .get()
                 .addOnSuccessListener { documentSnapshot ->
                     mutableLiveData.postValue(documentSnapshot?.toObject(T::class.java))
@@ -166,10 +160,10 @@ object KotFirestore {
         return mutableLiveData
     }
 
-    fun addToCollection(collection: String, any: Any): LiveData<CollectionWrite> {
+    fun addDocumentToCollection(collectionID: String, any: Any): LiveData<CollectionWrite> {
         val mutableLiveData = MutableLiveData<CollectionWrite>()
 
-        firestore.collection(collection)
+        firestore.collection(collectionID)
             .add(any)
             .addOnSuccessListener {
                 mutableLiveData.postValue(CollectionWrite(it))
@@ -184,20 +178,18 @@ object KotFirestore {
      * Add the document based on the document id, SetOption is by default set to
      * null, that means new values are written in the document every time.
      */
-    fun addToDocument(
-        document: String,
+    fun addDocumentWithID(
+        documentID: String,
         any: Any,
-        setOptions: SetOptions?
+        setOptions: SetOptions? = null
     ): LiveData<DocumentWrite> {
 
         val mutableLiveData = MutableLiveData<DocumentWrite>()
 
         if (setOptions == null) {
-            firestore.document(document)
-                .set(any)
+            firestore.document(documentID).set(any)
         } else {
-            firestore.document(document)
-                .set(any, setOptions)
+            firestore.document(documentID).set(any, setOptions)
         }.addOnSuccessListener {
             mutableLiveData.postValue(DocumentWrite(true))
         }.addOnFailureListener {
@@ -205,6 +197,32 @@ object KotFirestore {
         }
 
         return mutableLiveData
+    }
+
+    /**
+     * Update the individual field of the document by passing them as
+     * a map of key, value pair.
+     */
+    fun updateDocumentByID(documentID: String, map: Map<String, Any>): LiveData<DocumentWrite> {
+        val mutableLiveData = MutableLiveData<DocumentWrite>()
+
+        firestore.document(documentID)
+            .update(map)
+            .addOnSuccessListener {
+                mutableLiveData.postValue(DocumentWrite(true))
+            }.addOnFailureListener {
+                mutableLiveData.postValue(DocumentWrite(exception = it))
+            }
+
+        return mutableLiveData
+    }
+
+    /**
+     * Delete the document in the collection by passing document ID
+     */
+    fun deleteDocumentByID(documentID: String) {
+        firestore.document(documentID)
+            .delete()
     }
 
     /**
