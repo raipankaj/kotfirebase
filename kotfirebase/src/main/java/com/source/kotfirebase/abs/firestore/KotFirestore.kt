@@ -19,45 +19,82 @@ object KotFirestore {
      * Based on the collection id get all the documents in that
      * also if syncRealtime is enabled then listen for the real-
      * time changes.
-     * Return the well formed model based on the provided model type.
+     * Return a well formed model based on the provided model type.
      */
     inline fun <reified T> getFromCollectionInto(
-        collectionPath: String,
+        collectionID: String,
         syncRealtime: Boolean = false,
         noinline queryFunc: (Query.() -> Query)? = null
     ): LiveData<List<T>> {
 
         val mutableLiveData = MutableLiveData<List<T>>()
 
-        if (syncRealtime) {
-            if (queryFunc != null) {
-                firestore.collection(collectionPath).queryFunc()
-                    .addSnapshotListener { value, error ->
-                        mutableLiveData.postValue(value?.toObjects(T::class.java))
-                    }
+        performQuery(collectionID) {
+            if (syncRealtime) {
+                if (queryFunc != null) queryFunc()
+                addSnapshotListener { value, error ->
+                    mutableLiveData.postValue(value?.toObjects(T::class.java))
+                }
             } else {
-                firestore.collection(collectionPath)
-                    .addSnapshotListener { value, error ->
-                        mutableLiveData.postValue(value?.toObjects(T::class.java))
-                    }
-            }
-        } else {
-            if (queryFunc != null) {
-                firestore.collection(collectionPath).queryFunc()
-                    .get()
-                    .addOnSuccessListener {
-                        mutableLiveData.postValue(it.toObjects(T::class.java))
-                    }
-            } else {
-                firestore.collection(collectionPath)
-                    .get()
-                    .addOnSuccessListener {
-                        mutableLiveData.postValue(it.toObjects(T::class.java))
-                    }
+                if (queryFunc != null) queryFunc()
+                get().addOnSuccessListener {
+                    mutableLiveData.postValue(it.toObjects(T::class.java))
+                }
             }
         }
 
         return mutableLiveData
+    }
+
+    fun performQuery(collectionID: String, queryFunc: Query.() -> Unit) {
+        firestore.collection(collectionID)
+            .queryFunc()
+    }
+
+    /**
+     * Perform the network using the firebase existing API to fetch result
+     * from the collection and return the result as a live data.
+     * In case syncRealtime is true than set the realtime listener and post
+     * the result through live data. In case activity or fragment is not in
+     * onResume state then live data will take care of storing result but not
+     * delivering it until they are in onResume state once again.
+     */
+    fun getFromCollection(
+        collection: String,
+        syncRealtime: Boolean = false,
+        queryFunc: (Query.() -> Query)? = null
+    ): LiveData<CollectionResult> {
+
+        val collectionLiveData = MutableLiveData<CollectionResult>()
+        if (syncRealtime) {
+            firestore.collection(collection)
+                .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    val collectionResult = if (firebaseFirestoreException == null) {
+                        CollectionResult(querySnapshot = querySnapshot)
+                    } else {
+                        CollectionResult(firestoreException = firebaseFirestoreException)
+                    }
+
+                    /*Post the collection result which either have querySnapshot
+                     or firestore exception*/
+                    collectionLiveData.postValue(collectionResult)
+                }
+        } else {
+            firestore.collection(collection)
+                .get()
+                .addOnSuccessListener {
+                    val collectionResult = CollectionResult(querySnapshot = it)
+                    //Post the collection result which will have querySnapshot
+                    collectionLiveData.postValue(collectionResult)
+                }
+                .addOnFailureListener {
+                    //Post the collection result which will have exception
+                    val collectionResult = CollectionResult(exception = it)
+                    collectionLiveData.postValue(collectionResult)
+                }
+        }
+
+        return collectionLiveData
     }
 
     /**
@@ -103,52 +140,31 @@ object KotFirestore {
         return documentLiveData
     }
 
-
     /**
-     * Perform the network using the firebase existing API to fetch result
-     * from the collection and return the result as a live data.
-     * In case syncRealtime is true than set the realtime listener and post
-     * the result through live data. In case activity or fragment is not in
-     * onResume state then live data will take care of storing result but not
-     * delivering it until they are in onResume state once again.
+     * Get the document from the collection based on pre-defined model.
+     * Pass the data class type while calling getDocumentResultsIn()
      */
-    fun getFromCollection(
-        collection: String,
-        syncRealtime: Boolean = false
-    ): LiveData<CollectionResult> {
+    inline fun <reified T> getFromDocumentInto(
+        document: String,
+        sync: Boolean = false
+    ): LiveData<T> {
+        val mutableLiveData = MutableLiveData<T>()
 
-        val collectionLiveData = MutableLiveData<CollectionResult>()
-        if (syncRealtime) {
-            firestore.collection(collection)
-                .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                    val collectionResult = if (firebaseFirestoreException == null) {
-                        CollectionResult(querySnapshot = querySnapshot)
-                    } else {
-                        CollectionResult(firestoreException = firebaseFirestoreException)
-                    }
-
-                    /*Post the collection result which either have querySnapshot
-                     or firestore exception*/
-                    collectionLiveData.postValue(collectionResult)
+        if (sync) {
+            firestore.document(document)
+                .addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+                    mutableLiveData.postValue(documentSnapshot?.toObject(T::class.java))
                 }
         } else {
-            firestore.collection(collection)
+            firestore.document(document)
                 .get()
-                .addOnSuccessListener {
-                    val collectionResult = CollectionResult(querySnapshot = it)
-                    //Post the collection result which will have querySnapshot
-                    collectionLiveData.postValue(collectionResult)
-                }
-                .addOnFailureListener {
-                    //Post the collection result which will have exception
-                    val collectionResult = CollectionResult(exception = it)
-                    collectionLiveData.postValue(collectionResult)
+                .addOnSuccessListener { documentSnapshot ->
+                    mutableLiveData.postValue(documentSnapshot?.toObject(T::class.java))
                 }
         }
 
-        return collectionLiveData
+        return mutableLiveData
     }
-
 
     fun addToCollection(collection: String, any: Any): LiveData<CollectionWrite> {
         val mutableLiveData = MutableLiveData<CollectionWrite>()
@@ -186,34 +202,6 @@ object KotFirestore {
             mutableLiveData.postValue(DocumentWrite(true))
         }.addOnFailureListener {
             mutableLiveData.postValue(DocumentWrite(exception = it))
-        }
-
-        return mutableLiveData
-    }
-
-    /**
-     * Get the document from the collection based on pre-defined model.
-     * Pass the data class type while calling getDocumentResultsIn()
-     */
-    inline fun <reified T> getDocumentResultsIn(
-        document: String,
-        sync: Boolean = false
-    ): LiveData<T> {
-        val mutableLiveData = MutableLiveData<T>()
-
-        if (sync) {
-            firestore.document(document)
-                .addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
-                    val t = documentSnapshot?.toObject(T::class.java)
-                    mutableLiveData.postValue(t)
-                }
-        } else {
-            firestore.document(document)
-                .get()
-                .addOnSuccessListener { documentSnapshot ->
-                    val t = documentSnapshot?.toObject(T::class.java)
-                    mutableLiveData.postValue(t)
-                }
         }
 
         return mutableLiveData

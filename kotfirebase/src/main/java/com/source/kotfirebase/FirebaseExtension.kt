@@ -11,7 +11,7 @@ fun String.getFirebaseCollection(sync: Boolean = false) = KotFirestore.getFromCo
 fun String.getFirebaseDocuments(sync: Boolean = false) = KotFirestore.getFromDocument(this, sync)
 
 inline fun <reified T> String.getFirebaseDocumentsIn(sync: Boolean = false) =
-    KotFirestore.getDocumentResultsIn<T>(this, sync)
+    KotFirestore.getFromDocumentInto<T>(this, sync)
 
 fun Context.logBundledEvent(name: String, analyticsFunc: Bundle.() -> Unit) {
     val bundle = Bundle()
