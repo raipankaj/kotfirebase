@@ -79,23 +79,23 @@ Here are the ways to use cloud storage APIs
 
 ```kotlin
 //Upload file by providing file name, storage path and file path
-val uploadFileLiveData: LiveData<StorageResult> = Storage.uploadFile("myimage.jpg","storagePath", "filePath")
+val uploadFileLiveData: LiveData<StorageResult> = KotStorage.uploadFile("myimage.jpg","storagePath", "filePath")
 
 //Upload file stream by providing file name, storage path and file path
-val uploadFileStreamLiveData: LiveData<StorageResult> = Storage.uploadFileStream("myimage.jpg","storagePath", "filePath")
+val uploadFileStreamLiveData: LiveData<StorageResult> = KotStorage.uploadFileStream("myimage.jpg","storagePath", "filePath")
 
 //Upload bitmap by providing file name, storage path and bitmap
-val uploadBitmapLiveData: LiveData<StorageResult> = Storage.uploadBitmap("myimage.jpg","storagePath", bitmap)
+val uploadBitmapLiveData: LiveData<StorageResult> = KotStorage.uploadBitmap("myimage.jpg","storagePath", bitmap)
 
 //Get the download url for the multimedia
-val getDownloadUrlLiveData: LiveData<StorageDownloadResult> = Storage.getDownloadUrl("myimage.jpg", "storagePath")
+val getDownloadUrlLiveData: LiveData<StorageDownloadResult> = KotStorage.getDownloadUrl("myimage.jpg", "storagePath")
 
 //Download into another file
-val downloadFileLiveData: LiveData<StorageDownloadResult> = Storage.downloadFile("myimage.jpg", "storagePath", file)
+val downloadFileLiveData: LiveData<StorageDownloadResult> = KotStorage.downloadFile("myimage.jpg", "storagePath", file)
 
 //Download file into local memory
 val ONE_MEGABYTE: Long = 1024 * 1024
-val downloadTempStorageLiveData: LiveData<StorageDownloadResult> = Storage.downloadInMemory("myimage.jpg", "storagePath", ONE_MEGABYTE)
+val downloadTempStorageLiveData: LiveData<StorageDownloadResult> = KotStorage.downloadInMemory("myimage.jpg", "storagePath", ONE_MEGABYTE)
 
 ```
 
@@ -119,20 +119,20 @@ Update app behaviour without updating app on playstore using the remote config
 
 ```kotlin
 //Initiate the remote config to provide the default value and to change other params
-RemoteConfig.initRemoteConfig(R.xml.remote_config_defaults)
+KotRemoteConfig.initRemoteConfig(R.xml.remote_config_defaults)
 
 //Fetch and activate to update the remote config values in realtime
-val isFetchedLiveData: LiveData<RemoteConfigResult> = RemoteConfig.fetchAndShow()
+val isFetchedLiveData: LiveData<RemoteConfigResult> = KotRemoteConfig.fetchAndShow()
 
 //Just fetch but do not update the remote config values
-RemoteConfig.justFetch()
+KotRemoteConfig.justFetch()
 
 //Activate the fetched result so as to get latest remote config values
-val isFetchedResultActivated: LiveData<RemoteConfigResult> = RemoteConfig.activateFetchedResults()
+val isFetchedResultActivated: LiveData<RemoteConfigResult> = KotRemoteConfig.activateFetchedResults()
 
 //Get the value from remote config using these predefined methods
-RemoteConfig.getRemoteBoolean("is_update_available")
-RemoteConfig.getRemoteDouble("current_version")
-RemoteConfig.getRemoteLong("last_updated_timestamp")
-RemoteConfig.getRemoteString("app_theme_name")
+KotRemoteConfig.getRemoteBoolean("is_update_available")
+KotRemoteConfig.getRemoteDouble("current_version")
+KotRemoteConfig.getRemoteLong("last_updated_timestamp")
+KotRemoteConfig.getRemoteString("app_theme_name")
 ```
